@@ -22,11 +22,12 @@ class MobiConvBlock(nn.Module):
     def forward(self, x):
         size = 2 ** (self.n_layers - 1)
         out = []
-        table = torch.ones_like(x[:, :self.out_channels // self.n_layers + 1, :, :])
+        table = torch.ones_like(x[:, :self.out_channels // self.n_layers, :, :])
         for conv in self.convs:
             h = F.avg_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
+            print(self.out_channels)
             print(h.shape)
             print(table.shape)
             print(conv.bias.shape)
