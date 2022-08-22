@@ -58,7 +58,7 @@ class SmartPool2d(nn.Module):
                         _y[0] = j
                     elif j >= _y[1]:
                         _y[1] = j
-        return x[_x[0]:_x[1] + 1, _y[0]:_y[1] + 1]
+        return x[_x[0]:_x[1] + 1, _y[0]:_y[1] + 1], _x, _y
 
     def forward(self, x):
         N, C, H, W = x.shape
@@ -66,7 +66,10 @@ class SmartPool2d(nn.Module):
         for n in range(N):
             stack = []
             for c in range(C):
-                feature = self._crop(x[n, c, :, :])
+                feature, _x, _y = self._crop(x[n, c, :, :])
+                if feature.shape[-2] == 0 or feature.shape[-1] == 0:
+                    print(_x)
+                    print(_y)
                 if self.mode == 'avgpool':
                     feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H // self.scale, W // self.scale),
                                             align_corners=False, antialias=True, mode='bilinear')
