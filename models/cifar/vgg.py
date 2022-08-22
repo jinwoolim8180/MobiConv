@@ -57,7 +57,7 @@ def make_layers(cfg, batch_norm=False):
     i = 1
     for v in cfg:
         if v == 'M':
-            if i >= 3:
+            if i <= 1:
                 layers += [SmartPool2d(scale=2, mode='maxpool')]
             else:
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
