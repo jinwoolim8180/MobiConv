@@ -58,9 +58,7 @@ def make_layers(cfg, batch_norm=False):
         if v == 'M':
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
         else:
-            if in_channels <= 128:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=3)
-            elif in_channels <= 256:
+            if in_channels <= 256:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
             else:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
