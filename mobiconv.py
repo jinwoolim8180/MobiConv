@@ -7,6 +7,7 @@ class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True, n_layers=4, ratio=0.1):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
+        self.in_channels = in_channels
         self.out_channels = out_channels
         self.n_layers = n_layers
         self.ratio = ratio
@@ -27,6 +28,7 @@ class MobiConvBlock(nn.Module):
             h = F.avg_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
+            print(self.in_channels)
             print(self.out_channels)
             print(h.shape)
             print(table.shape)
