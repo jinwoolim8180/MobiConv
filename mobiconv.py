@@ -65,12 +65,27 @@ class SmartPool2d(nn.Module):
 
     def forward(self, x):
         N, C, H, W = x.shape
-        feature = self._crop(x)
-        if self.mode == 'avgpool':
-            feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H // self.scale, W // self.scale),
-                                    align_corners=False, antialias=True, mode='bilinear')
-        elif self.mode == 'maxpool':
-            feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H, W),
-                                    align_corners=False, antialias=True, mode='bilinear')
-            feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
-        return feature
+        threshold = self.ratio * torch.amax(x, dim=(-2, -1))
+        table = torch.ge(x, threshold.unsqueeze(2).unsqueeze(3))
+        x_range = torch.tile(torch.arange(H), (N, C, W, 1)).permute(0, 1, 3, 2).cuda()
+        y_range = torch.tile(torch.arange(W), (N, C, H, 1)).cuda()
+        x_min = torch.amin(torch.logical_not(x_range) * 1e5 + table * x_range, dim=(-2, -1))
+        x_max = torch.amax(torch.logical_not(x_range) * -1e5 + table * x_range, dim=(-2, -1))
+        y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1))
+        y_max = torch.amax(torch.logical_not(y_range) * -1e5 + table * y_range, dim=(-2, -1))
+        out = []
+        for n in range(N):
+            stack = []
+            for c in range(C):
+                feature = x[n, c, int(x_min[n, c].item()):int(x_max[n, c].item()) + 1,
+                          int(y_min[n, c].item()):int(y_max[n, c].item()) + 1]
+                if self.mode == 'avgpool':
+                    feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H // self.scale, W // self.scale),
+                                            align_corners=False, antialias=True, mode='bilinear')
+                elif self.mode == 'maxpool':
+                    feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H, W),
+                                            align_corners=False, antialias=True, mode='bilinear')
+                    feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
+                stack.append(feature)
+            out.append(torch.stack(stack, dim=1))
+        return torch.stack(out, dim=0)
