@@ -26,7 +26,7 @@ class MobiConvBlock(nn.Module):
             h = F.avg_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
-            h = table * h + torch.logical_not(table) * conv.bias.unsqueeze(1).unsqueeze(2)
+            h = table * h + torch.logical_not(table) * conv.bias
             threshold = self.ratio * torch.amax(h, dim=(-2, -1), keepdim=True)
             table = torch.ge(h, threshold)
             out.append(h)
