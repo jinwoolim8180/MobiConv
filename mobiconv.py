@@ -50,11 +50,11 @@ class SmartPool2d(nn.Module):
         for i in range(H):
             for j in range(W):
                 if x[i, j] >= threshold:
-                    if i < _x[0]:
+                    if i <= _x[0]:
                         _x[0] = i
                     elif i >= _x[1]:
                         _x[1] = i
-                    if j < _y[0]:
+                    if j <= _y[0]:
                         _y[0] = j
                     elif j >= _y[1]:
                         _y[1] = j
