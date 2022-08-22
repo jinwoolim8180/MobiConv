@@ -86,6 +86,8 @@ class SmartPool2d(nn.Module):
                     feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H, W),
                                             align_corners=False, antialias=True, mode='bilinear')
                     feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
-                stack.append(feature.squeeze(0).squeeze(1))
+                feature = feature.squeeze(0).squeeze(1)
+                print(feature.shape)
+                stack.append(feature)
             out.append(torch.stack(stack, dim=1))
         return torch.stack(out, dim=0)
