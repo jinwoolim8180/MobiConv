@@ -54,11 +54,15 @@ class VGG(nn.Module):
 def make_layers(cfg, batch_norm=False):
     layers = []
     in_channels = 3
+    i = 0
     for v in cfg:
         if v == 'M':
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            i += 1
         else:
-            if in_channels <= 256:
+            if i == 0:
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=4)
+            elif i <= 2:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
             else:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
@@ -74,7 +78,7 @@ cfg = {
     'A': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
     'D': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
-    'E': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
+    'E': [128, 128, 'M', 200, 200, 'M', 384, 384, 384, 384, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 }
 
 

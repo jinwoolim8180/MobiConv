@@ -26,7 +26,7 @@ class MobiConvBlock(nn.Module):
         out = []
         table = torch.ones(N, self.out_channels // self.n_layers, H, W).cuda()
         for conv in self.convs:
-            h = F.avg_pool2d(x, kernel_size=size, stride=size)
+            h = F.max_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
             h = table * h + torch.logical_not(table) * conv.bias.unsqueeze(0).unsqueeze(2).unsqueeze(3)
