@@ -54,7 +54,7 @@ class VGG(nn.Module):
 def make_layers(cfg, batch_norm=False):
     layers = []
     in_channels = 3
-    i = 1
+    i = 5
     for v in cfg:
         if v == 'M':
             if i <= 3:
