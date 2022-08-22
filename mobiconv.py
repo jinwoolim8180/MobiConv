@@ -57,7 +57,7 @@ class SmartPool2d(nn.Module):
         for n in range(N):
             stack = []
             for c in range(C):
-                stack.append(x[x_min[n, c]:x_max[n, c] + 1, y_min[n, c]:y_max[n, c] + 1])
+                stack.append(x[x_min[n, c].item():x_max[n, c].item() + 1, y_min[n, c].item():y_max[n, c].item() + 1])
             out.append(torch.stack(stack, dim=1))
         return torch.stack(out, dim=0)
 
