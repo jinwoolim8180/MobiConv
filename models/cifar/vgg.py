@@ -4,7 +4,7 @@
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import math
-from mobiconv import SmartPool2d
+from mobiconv import MobiConvBlock, SmartPool2d
 
 
 __all__ = [
@@ -57,13 +57,10 @@ def make_layers(cfg, batch_norm=False):
     i = 1
     for v in cfg:
         if v == 'M':
-            if i <= 1:
-                layers += [SmartPool2d(scale=2, mode='maxpool')]
-            else:
-                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
             i += 1
         else:
-            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
+            conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1)
             if batch_norm:
                 layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
             else:
