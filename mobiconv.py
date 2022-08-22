@@ -43,42 +43,25 @@ class SmartPool2d(nn.Module):
         self.ratio = ratio
 
     def _crop(self, x):
-        H, W = x.shape
+        N, C, H, W = x.shape
         threshold = self.ratio * torch.amax(x, dim=(-2, -1))
-        _x = [H - 1, 0]
-        _y = [W - 1, 0]
-        for i in range(H):
-            for j in range(W):
-                if x[i, j] >= threshold:
-                    if i <= _x[0]:
-                        _x[0] = i
-                    if i >= _x[1]:
-                        _x[1] = i
-                    if j <= _y[0]:
-                        _y[0] = j
-                    if j >= _y[1]:
-                        _y[1] = j
-        return x[_x[0]:_x[1] + 1, _y[0]:_y[1] + 1], _x, _y
+        table = torch.ge(x, threshold)
+        x_range = torch.tile(torch.arange(H), (N, C, W, 1)).permute(0, 1, 3, 2)
+        y_range = torch.tile(torch.arange(W), (N, C, H, 1))
+        x_min = torch.amin(torch.logical_not(x_range) * 1e5 + table * x_range, dim=(-2, -1)).item()
+        x_max = torch.amax(torch.logical_not(x_range) * 0 + table * x_range, dim=(-2, -1)).item()
+        y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1)).item()
+        y_max = torch.amax(torch.logical_not(y_range) * 0 + table * y_range, dim=(-2, -1)).item()
+        return x[x_min:x_max + 1, y_min:y_max + 1]
 
     def forward(self, x):
         N, C, H, W = x.shape
-        out = []
-        for n in range(N):
-            stack = []
-            for c in range(C):
-                feature, _x, _y = self._crop(x[n, c, :, :])
-                if feature.shape[-2] == 0 or feature.shape[-1] == 0:
-                    print(_x)
-                    print(_y)
-                if self.mode == 'avgpool':
-                    feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H // self.scale, W // self.scale),
-                                            align_corners=False, antialias=True, mode='bilinear')
-                elif self.mode == 'maxpool':
-                    feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H, W),
-                                            align_corners=False, antialias=True, mode='bilinear')
-                    feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
-                stack.append(feature.squeeze(1).squeeze(0))
-            stack = torch.stack(stack, dim=0)
-            out.append(stack)
-        out = torch.stack(out, dim=0)
-        return out
+        feature = self._crop(x)
+        if self.mode == 'avgpool':
+            feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H // self.scale, W // self.scale),
+                                    align_corners=False, antialias=True, mode='bilinear')
+        elif self.mode == 'maxpool':
+            feature = F.interpolate(feature.unsqueeze(0).unsqueeze(1), size=(H, W),
+                                    align_corners=False, antialias=True, mode='bilinear')
+            feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
+        return feature
