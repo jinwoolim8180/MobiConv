@@ -89,4 +89,5 @@ class SmartPool2d(nn.Module):
                 feature = feature.squeeze(1).squeeze(0)
                 stack.append(feature)
             out.append(torch.stack(stack, dim=1))
-        return torch.stack(out, dim=0)
+        out = torch.stack(out, dim=0)
+        return out
