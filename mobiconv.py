@@ -21,9 +21,10 @@ class MobiConvBlock(nn.Module):
             )
 
     def forward(self, x):
+        N, C, H, W = x.shape
         size = 2 ** (self.n_layers - 1)
         out = []
-        table = torch.ones_like(x[:, :self.out_channels // self.n_layers, :, :])
+        table = torch.ones(N, self.out_channels // self.n_layers, H, W)
         for conv in self.convs:
             h = F.avg_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
