@@ -47,7 +47,7 @@ class SmartPool2d(nn.Module):
         threshold = self.ratio * torch.amax(x, dim=(-2, -1))
         print(x.shape)
         print(threshold.shape)
-        table = torch.ge(x, threshold)
+        table = torch.ge(x, threshold.unsqueeze(2).unsqueeze(3))
         x_range = torch.tile(torch.arange(H), (N, C, W, 1)).permute(0, 1, 3, 2)
         y_range = torch.tile(torch.arange(W), (N, C, H, 1))
         x_min = torch.amin(torch.logical_not(x_range) * 1e5 + table * x_range, dim=(-2, -1)).item()
