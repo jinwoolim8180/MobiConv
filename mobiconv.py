@@ -7,6 +7,7 @@ class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True, n_layers=4, ratio=0.1):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
+        self.out_channels = out_channels
         self.n_layers = n_layers
         self.ratio = ratio
         assert out_channels % n_layers == 0
@@ -21,7 +22,7 @@ class MobiConvBlock(nn.Module):
     def forward(self, x):
         size = 2 ** (self.n_layers - 1)
         out = []
-        table = torch.ones_like(x[:, :x.shape[1] // self.n_layers, :, :])
+        table = torch.ones_like(x[:, :self.out_channels // self.n_layers, :, :])
         for conv in self.convs:
             h = F.avg_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
