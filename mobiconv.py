@@ -56,7 +56,7 @@ class SmartPool2d(nn.Module):
         for n in range(N):
             stack = []
             for c in range(C):
-                feature = x[int(x_min[n, c].item()):int(x_max[n, c].item()) + 1,
+                feature = x[n, c, int(x_min[n, c].item()):int(x_max[n, c].item()) + 1,
                             int(y_min[n, c].item()):int(y_max[n, c].item()) + 1]
                 print(feature.shape)
                 stack.append(feature)
