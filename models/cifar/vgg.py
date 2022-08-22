@@ -54,9 +54,14 @@ class VGG(nn.Module):
 def make_layers(cfg, batch_norm=False):
     layers = []
     in_channels = 3
+    i = 1
     for v in cfg:
         if v == 'M':
-            layers += [SmartPool2d(scale=2, mode='maxpool')]
+            if i <= 3:
+                layers += [SmartPool2d(scale=2, mode='maxpool')]
+            else:
+                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            i += 1
         else:
             conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
             if batch_norm:
