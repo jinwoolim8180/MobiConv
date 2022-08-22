@@ -90,4 +90,5 @@ class SmartPool2d(nn.Module):
                 stack.append(feature)
             out.append(torch.stack(stack, dim=1))
         out = torch.stack(out, dim=0)
+        print(out.shape)
         return out
