@@ -25,14 +25,10 @@ class MobiConvBlock(nn.Module):
         size = 2 ** (self.n_layers - 1)
         out = []
         table = torch.ones(N, self.out_channels // self.n_layers, H, W).cuda()
-        h = x
         for conv in self.convs:
-            if H > 4 and W > 4:
-                h = F.avg_pool2d(h, kernel_size=size, stride=size)
-                h = conv(h)
-                h = F.upsample(h, scale_factor=size, mode='nearest')
-            else:
-                h = conv(h)
+            h = F.avg_pool2d(x, kernel_size=size, stride=size)
+            h = conv(h)
+            h = F.upsample(h, scale_factor=size, mode='nearest')
             h = table * h + torch.logical_not(table) * conv.bias.unsqueeze(0).unsqueeze(2).unsqueeze(3)
             threshold = self.ratio * torch.amax(h, dim=(-2, -1), keepdim=True)
             table = torch.ge(h, threshold)
