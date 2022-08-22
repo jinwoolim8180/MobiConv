@@ -45,6 +45,8 @@ class SmartPool2d(nn.Module):
     def _crop(self, x):
         N, C, H, W = x.shape
         threshold = self.ratio * torch.amax(x, dim=(-2, -1))
+        print(x.shape)
+        print(threshold.shape)
         table = torch.ge(x, threshold)
         x_range = torch.tile(torch.arange(H), (N, C, W, 1)).permute(0, 1, 3, 2)
         y_range = torch.tile(torch.arange(W), (N, C, H, 1))
