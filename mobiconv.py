@@ -88,7 +88,7 @@ class SmartPool2d(nn.Module):
                     feature = F.max_pool2d(feature, kernel_size=self.scale, stride=self.scale)
                 feature = feature.squeeze(1).squeeze(0)
                 stack.append(feature)
-            out.append(torch.stack(stack, dim=1))
+            out.append(torch.stack(stack, dim=0))
         out = torch.stack(out, dim=0)
         print(out.shape)
         return out
