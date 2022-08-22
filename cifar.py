@@ -241,7 +241,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
     end = time.time()
 
     bar = Bar('Processing', max=len(trainloader))
-    for batch_idx, (inputs, targets) in enumerate(tqdm(trainloader)):
+    for batch_idx, (inputs, targets) in enumerate(trainloader):
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -297,8 +297,8 @@ def test(testloader, model, criterion, epoch, use_cuda):
     model.eval()
 
     end = time.time()
-    bar = Bar('Processing', max=len(testloader))
-    for batch_idx, (inputs, targets) in enumerate(tqdm(testloader)):
+    bar = Bar('Processing', max=len(testloader)
+    for batch_idx, (inputs, targets) in enumerate(testloader):
         # measure data loading time
         data_time.update(time.time() - end)
 
