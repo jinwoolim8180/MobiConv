@@ -52,11 +52,11 @@ class SmartPool2d(nn.Module):
                 if x[i, j] >= threshold:
                     if i <= _x[0]:
                         _x[0] = i
-                    elif i >= _x[1]:
+                    if i >= _x[1]:
                         _x[1] = i
                     if j <= _y[0]:
                         _y[0] = j
-                    elif j >= _y[1]:
+                    if j >= _y[1]:
                         _y[1] = j
         return x[_x[0]:_x[1] + 1, _y[0]:_y[1] + 1], _x, _y
 
