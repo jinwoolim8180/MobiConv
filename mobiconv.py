@@ -48,10 +48,10 @@ class SmartPool2d(nn.Module):
         table = torch.ge(x, threshold.unsqueeze(2).unsqueeze(3))
         x_range = torch.tile(torch.arange(H), (N, C, W, 1)).permute(0, 1, 3, 2).cuda()
         y_range = torch.tile(torch.arange(W), (N, C, H, 1)).cuda()
-        x_min = torch.amin(torch.logical_not(x_range) * 1e5 + table * x_range, dim=(-2, -1)).item()
-        x_max = torch.amax(torch.logical_not(x_range) * 0 + table * x_range, dim=(-2, -1)).item()
-        y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1)).item()
-        y_max = torch.amax(torch.logical_not(y_range) * 0 + table * y_range, dim=(-2, -1)).item()
+        x_min = torch.amin(torch.logical_not(x_range) * 1e5 + table * x_range, dim=(-2, -1))
+        x_max = torch.amax(torch.logical_not(x_range) * 0 + table * x_range, dim=(-2, -1))
+        y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1))
+        y_max = torch.amax(torch.logical_not(y_range) * 0 + table * y_range, dim=(-2, -1))
         return x[x_min:x_max + 1, y_min:y_max + 1]
 
     def forward(self, x):
