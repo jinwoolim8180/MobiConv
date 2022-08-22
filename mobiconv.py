@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class MobiConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True, n_layers=4, ratio=0.1):
+    def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True, n_layers=4, ratio=0.05):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
