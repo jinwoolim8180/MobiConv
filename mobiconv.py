@@ -52,6 +52,7 @@ class SmartPool2d(nn.Module):
         x_max = torch.amax(torch.logical_not(x_range) * 0 + table * x_range, dim=(-2, -1))
         y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1))
         y_max = torch.amax(torch.logical_not(y_range) * 0 + table * y_range, dim=(-2, -1))
+        print(x_min.shape)
         out = []
         for n in range(N):
             stack = []
