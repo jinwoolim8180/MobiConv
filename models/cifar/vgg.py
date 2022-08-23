@@ -61,9 +61,9 @@ def make_layers(cfg, batch_norm=False):
             i += 1
         else:
             if i == 0:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
             elif i <= 2:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
             else:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
             if batch_norm:
