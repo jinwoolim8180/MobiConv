@@ -5,14 +5,13 @@ import torch.nn.functional as F
 
 class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True,
-                 n_pools=3, n_layers=16, ratio=0.05):
+                 n_pools=3, n_layers=16):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.n_pools = n_pools
         self.n_layers = n_layers
-        self.ratio = ratio
         assert out_channels >= n_pools * n_layers
 
         self.convs = nn.ModuleList()
@@ -35,8 +34,10 @@ class MobiConvBlock(nn.Module):
             h = F.max_pool2d(table * x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
-            threshold = self.ratio * torch.amin(h, dim=(-2, -1), keepdim=True)
-            table = torch.mean(torch.ge(h, threshold).float(), dim=1, keepdim=True)
+            threshold = torch.mean(h, dim=(-2, -1), keepdim=True)
+            table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
+            table += torch.ones(N, 1, H, W).cuda()
+            table /= self.n_layers
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)
