@@ -31,8 +31,8 @@ class MobiConvBlock(nn.Module):
         out = []
         table = torch.ones(N, 1, H, W).cuda()
         for conv in self.convs:
-            h = F.max_pool2d(table * x, kernel_size=size, stride=size)
-            h = conv(h)
+            h = F.max_pool2d(x, kernel_size=size, stride=size)
+            h = table * conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
             threshold = torch.mean(h, dim=(-2, -1), keepdim=True)
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
@@ -62,7 +62,7 @@ class SmartPool2d(nn.Module):
         y_min = torch.amin(torch.logical_not(y_range) * 1e5 + table * y_range, dim=(-2, -1))
         y_max = torch.amax(torch.logical_not(y_range) * -1e5 + table * y_range, dim=(-2, -1))
         out = []
-        for n in range(N):
+        for n in range(N)
             stack = []
             for c in range(C):
                 feature = x[n, c, int(x_min[n, c].item()):int(x_max[n, c].item()) + 1,
