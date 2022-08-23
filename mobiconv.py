@@ -32,8 +32,9 @@ class MobiConvBlock(nn.Module):
         table = torch.ones(N, 1, H, W).cuda()
         for conv in self.convs:
             h = F.max_pool2d(x, kernel_size=size, stride=size)
-            h = table * conv(h)
+            h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
+            h *= table
             threshold = torch.mean(h, dim=(-2, -1), keepdim=True)
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
             # table += torch.ones(N, 1, H, W).cuda()
