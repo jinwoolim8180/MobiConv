@@ -4,34 +4,39 @@ import torch.nn.functional as F
 
 
 class MobiConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True, n_layers=4, ratio=0.05):
+    def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True,
+                 n_pools=3, n_layers=16, ratio=0.05):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.n_pools = n_pools
         self.n_layers = n_layers
         self.ratio = ratio
-        assert out_channels % n_layers == 0
+        assert out_channels >= n_pools * n_layers
 
         self.convs = nn.ModuleList()
-        for i in range(n_layers):
+        for i in range(n_pools):
             self.convs.append(
-                nn.Conv2d(in_channels, out_channels // n_layers, kernel_size=kernel_size,
+                nn.Conv2d(in_channels, n_layers, kernel_size=kernel_size,
                           padding=padding, stride=stride, bias=bias)
             )
+        self.convs.append(
+            nn.Conv2d(in_channels, out_channels - n_pools * n_layers, kernel_size=kernel_size,
+                      padding=padding, stride=stride, bias=bias)
+        )
 
     def forward(self, x):
         N, C, H, W = x.shape
-        size = 2 ** (self.n_layers - 1)
+        size = 2 ** (self.n_pools)
         out = []
-        table = torch.ones(N, self.out_channels // self.n_layers, H, W).cuda()
+        table = torch.ones(N, 1, H, W).cuda()
         for conv in self.convs:
-            h = F.max_pool2d(x, kernel_size=size, stride=size)
+            h = F.max_pool2d(table * x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
-            # h = table * h + torch.logical_not(table) * conv.bias.unsqueeze(0).unsqueeze(2).unsqueeze(3)
-            threshold = self.ratio * torch.amax(h, dim=(-2, -1), keepdim=True)
-            table = torch.ge(h, threshold)
+            threshold = self.ratio * torch.amin(h, dim=(-2, -1), keepdim=True)
+            table = torch.mean(torch.ge(h, threshold).float(), dim=1, keepdim=True)
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)

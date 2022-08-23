@@ -61,11 +61,11 @@ def make_layers(cfg, batch_norm=False):
             i += 1
         else:
             if i == 0:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=2, n_layers=8)
             elif i <= 2:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=2)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=2)
             else:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_layers=1)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0)
             if batch_norm:
                 layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
             else:
