@@ -9,6 +9,7 @@ https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 '''
 import torch.nn as nn
 import math
+from mobiconv import MobiConvBlock
 
 
 __all__ = ['resnet']
@@ -22,12 +23,14 @@ def conv3x3(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, n_layers=4, n_pools=0):
         super(BasicBlock, self).__init__()
-        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.conv1 = MobiConvBlock(inplanes, planes, kernel_size=3, stride=stride,
+                                   padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn1 = nn.BatchNorm2d(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
+        self.conv2 = MobiConvBlock(planes, planes, kernel_size=3, stride=stride,
+                                   padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
@@ -54,14 +57,16 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, n_layers=16, n_pools=0):
         super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
+        self.conv1 = MobiConvBlock(inplanes, planes, kernel_size=3, stride=stride,
+                                   padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=1, bias=False)
+        self.conv2 = MobiConvBlock(planes, planes, kernel_size=3, stride=stride,
+                                   padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
+        self.conv3 = MobiConvBlock(planes, planes * 4, kernel_size=3, stride=stride,
+                                   padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn3 = nn.BatchNorm2d(planes * 4)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
@@ -139,7 +144,12 @@ class ResNet(nn.Module):
         layers.append(block(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
+            if self.inplanes == 16:
+                layers.append(block(self.inplanes, planes, n_layers=2, n_pools=2))
+            elif self.inplanes == 32:
+                layers.append(block(self.inplanes, planes, n_pools=2))
+            else:
+                layers.append(block(self.inplanes, planes))
 
         return nn.Sequential(*layers)
 
