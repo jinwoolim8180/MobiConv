@@ -5,13 +5,15 @@ import torch.nn.functional as F
 
 class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, padding=1, stride=1, bias=True,
-                 n_pools=3, n_layers=16):
+                 n_pools=3, n_layers=16, n_pruned=0, ratio=[1, 0]):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.n_pools = n_pools
         self.n_layers = n_layers
+        self.n_pruned = n_pruned
+        self.ratio = ratio
         assert out_channels >= n_pools * n_layers
 
         self.convs = nn.ModuleList()
@@ -27,7 +29,7 @@ class MobiConvBlock(nn.Module):
 
     def forward(self, x):
         N, C, H, W = x.shape
-        size = 2 ** (self.n_pools)
+        size = 2 ** self.n_pools
         out = []
         table = torch.ones(N, 1, H, W).cuda()
         for conv in self.convs:
@@ -35,10 +37,11 @@ class MobiConvBlock(nn.Module):
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
             h *= table
-            threshold = torch.mean(h, dim=(-2, -1), keepdim=True)
+            threshold = self.ratio[0] * torch.mean(h, dim=(-2, -1), keepdim=True)
+            threshold += self.ratio[1] * torch.amax(h, dim=(-2, -1), keepdim=True)
+            threshold /= self.ratio[0] + self.ratio[1]
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
-            # table += torch.ones(N, 1, H, W).cuda()
-            # table /= self.n_layers
+            table += self.n_pruned * torch.ones(N, 1, H, W).cuda()
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)
