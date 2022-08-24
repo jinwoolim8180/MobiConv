@@ -89,6 +89,8 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
+        print(out.shape)
+        print(residual.shape)
         out += residual
         out = self.relu(out)
 
