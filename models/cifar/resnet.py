@@ -29,7 +29,7 @@ class BasicBlock(nn.Module):
                                    padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn1 = nn.BatchNorm2d(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = MobiConvBlock(planes, planes, kernel_size=3, stride=stride,
+        self.conv2 = MobiConvBlock(planes, planes, kernel_size=3, stride=1,
                                    padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
@@ -61,13 +61,13 @@ class Bottleneck(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, n_layers=16, n_pools=0):
         super(Bottleneck, self).__init__()
-        self.conv1 = MobiConvBlock(inplanes, planes, kernel_size=3, stride=stride,
+        self.conv1 = MobiConvBlock(inplanes, planes, kernel_size=1, stride=1,
                                    padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = MobiConvBlock(planes, planes, kernel_size=3, stride=stride,
                                    padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = MobiConvBlock(planes, planes * 4, kernel_size=3, stride=stride,
+        self.conv3 = MobiConvBlock(planes, planes * 4, kernel_size=1, stride=1,
                                    padding=1, bias=False, n_layers=n_layers, n_pools=n_pools)
         self.bn3 = nn.BatchNorm2d(planes * 4)
         self.relu = nn.ReLU(inplace=True)
