@@ -10,6 +10,7 @@ class MobiConvBlock(nn.Module):
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.stride = stride
         self.n_pools = n_pools
         self.n_layers = n_layers
         self.n_pruned = n_pruned
@@ -31,14 +32,11 @@ class MobiConvBlock(nn.Module):
         N, C, H, W = x.shape
         size = 2 ** self.n_pools
         out = []
-        table = torch.ones(N, 1, H, W).cuda()
+        table = torch.ones(N, 1, H // self.stride, W // self.stride).cuda()
         for conv in self.convs:
             h = F.max_pool2d(x, kernel_size=size, stride=size)
             h = conv(h)
             h = F.upsample(h, scale_factor=size, mode='nearest')
-            print(table.shape)
-            print(h.shape)
-            print(x.shape)
             h *= table
             threshold = self.ratio[0] * torch.mean(h, dim=(-2, -1), keepdim=True)
             threshold += self.ratio[1] * torch.amax(h, dim=(-2, -1), keepdim=True)
