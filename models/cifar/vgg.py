@@ -61,9 +61,9 @@ def make_layers(cfg, batch_norm=False):
             i += 1
         else:
             if i == 0:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0, n_layers=8, n_pruned=0)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0, n_layers=8, n_pruned=8)
             elif i <= 2:
-                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0, n_pruned=0)
+                conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0, n_pruned=8)
             else:
                 conv2d = MobiConvBlock(in_channels, v, kernel_size=3, padding=1, n_pools=0, n_pruned=0)
             if batch_norm:
@@ -78,7 +78,7 @@ cfg = {
     'A': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
     'D': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
-    'E': [52, 52, 'M', 102, 102, 'M', 230, 230, 230, 230, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
+    'E': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 }
 
 
