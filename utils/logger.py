@@ -1,7 +1,6 @@
 # A simple torch style logger
 # (C) Wei YANG 2017
 from __future__ import absolute_import
-import matplotlib.pyplot as plt
 import os
 import sys
 import numpy as np
@@ -9,15 +8,13 @@ import numpy as np
 __all__ = ['Logger', 'LoggerMonitor', 'savefig']
 
 def savefig(fname, dpi=None):
-    dpi = 150 if dpi == None else dpi
-    plt.savefig(fname, dpi=dpi)
+    return
     
 def plot_overlap(logger, names=None):
     names = logger.names if names == None else names
     numbers = logger.numbers
     for _, name in enumerate(names):
         x = np.arange(len(numbers[name]))
-        plt.plot(x, np.asarray(numbers[name]))
     return [logger.title + '(' + name + ')' for name in names]
 
 class Logger(object):
@@ -72,9 +69,6 @@ class Logger(object):
         numbers = self.numbers
         for _, name in enumerate(names):
             x = np.arange(len(numbers[name]))
-            plt.plot(x, np.asarray(numbers[name]))
-        plt.legend([self.title + '(' + name + ')' for name in names])
-        plt.grid(True)
 
     def close(self):
         if self.file is not None:
@@ -90,13 +84,9 @@ class LoggerMonitor(object):
             self.loggers.append(logger)
 
     def plot(self, names=None):
-        plt.figure()
-        plt.subplot(121)
         legend_text = []
         for logger in self.loggers:
             legend_text += plot_overlap(logger, names)
-        plt.legend(legend_text, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-        plt.grid(True)
                     
 if __name__ == '__main__':
     # # Example
