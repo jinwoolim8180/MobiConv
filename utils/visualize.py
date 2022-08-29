@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torchvision
@@ -37,8 +36,6 @@ def colorize(x):
 
 def show_batch(images, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
     images = make_image(torchvision.utils.make_grid(images), Mean, Std)
-    plt.imshow(images)
-    plt.show()
 
 
 def show_mask_single(images, mask, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
@@ -50,9 +47,6 @@ def show_mask_single(images, mask, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
         im_data[:,i,:,:] = im_data[:,i,:,:] * Std[i] + Mean[i]    # unnormalize
 
     images = make_image(torchvision.utils.make_grid(images), Mean, Std)
-    plt.subplot(2, 1, 1)
-    plt.imshow(images)
-    plt.axis('off')
 
     # for b in range(mask.size(0)):
     #     mask[b] = (mask[b] - mask[b].min())/(mask[b].max() - mask[b].min())
@@ -66,9 +60,6 @@ def show_mask_single(images, mask, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
     # print(mask.size())
     mask = make_image(torchvision.utils.make_grid(0.3*im_data+0.7*mask.expand_as(im_data)))
     # mask = make_image(torchvision.utils.make_grid(0.3*im_data+0.7*mask), Mean, Std)
-    plt.subplot(2, 1, 2)
-    plt.imshow(mask)
-    plt.axis('off')
 
 def show_mask(images, masklist, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
     im_size = images.size(2)
@@ -79,9 +70,6 @@ def show_mask(images, masklist, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
         im_data[:,i,:,:] = im_data[:,i,:,:] * Std[i] + Mean[i]    # unnormalize
 
     images = make_image(torchvision.utils.make_grid(images), Mean, Std)
-    plt.subplot(1+len(masklist), 1, 1)
-    plt.imshow(images)
-    plt.axis('off')
 
     for i in range(len(masklist)):
         mask = masklist[i].data.cpu()
@@ -97,9 +85,6 @@ def show_mask(images, masklist, Mean=(2, 2, 2), Std=(0.5,0.5,0.5)):
         # print(mask.size())
         mask = make_image(torchvision.utils.make_grid(0.3*im_data+0.7*mask.expand_as(im_data)))
         # mask = make_image(torchvision.utils.make_grid(0.3*im_data+0.7*mask), Mean, Std)
-        plt.subplot(1+len(masklist), 1, i+2)
-        plt.imshow(mask)
-        plt.axis('off')
 
 
 
