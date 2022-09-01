@@ -117,8 +117,8 @@ class ResNet(nn.Module):
                                bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU(inplace=True)
-        self.layer1 = self._make_layer(block, 18, n)
-        self.layer2 = self._make_layer(block, 36, n, stride=2)
+        self.layer1 = self._make_layer(block, 16, n)
+        self.layer2 = self._make_layer(block, 32, n, stride=2)
         self.layer3 = self._make_layer(block, 64, n, stride=2)
         self.avgpool = nn.AvgPool2d(8)
         self.fc = nn.Linear(64 * block.expansion, num_classes)
@@ -144,9 +144,9 @@ class ResNet(nn.Module):
         layers.append(block(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            if self.inplanes == 18:
+            if self.inplanes == 16:
                 layers.append(block(self.inplanes, planes, n_layers=2, n_pools=1))
-            elif self.inplanes == 36:
+            elif self.inplanes == 32:
                 layers.append(block(self.inplanes, planes, n_layers=2, n_pools=2))
             else:
                 layers.append(block(self.inplanes, planes, n_layers=0, n_pools=0))
