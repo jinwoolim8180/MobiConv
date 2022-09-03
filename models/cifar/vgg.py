@@ -1,6 +1,7 @@
 '''VGG for CIFAR10. FC layers are removed.
 (c) YANG, Wei 
 '''
+import torch
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import math
@@ -30,10 +31,16 @@ class VGG(nn.Module):
         self._initialize_weights()
 
     def forward(self, x):
-        x = self.features(x)
+        loss = 0
+        num = 0
+        for module in self.features:
+            x = module(x)
+            if isinstance(module, MobiConvBlock):
+                num += 1
+                loss += torch.mean(torch.abs_(x), dim=(0, 1, 2, 3))
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
-        return x
+        return x, loss / num
 
     def _initialize_weights(self):
         for m in self.modules():
@@ -71,7 +78,7 @@ def make_layers(cfg, batch_norm=False):
             else:
                 layers += [conv2d, nn.ReLU(inplace=True)]
             in_channels = v
-    return nn.Sequential(*layers)
+    return nn.ModuleList(*layers)
 
 
 cfg = {

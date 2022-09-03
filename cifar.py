@@ -250,8 +250,8 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
         inputs, targets = torch.autograd.Variable(inputs), torch.autograd.Variable(targets)
 
         # compute output
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
+        outputs, sparsity = model(inputs)
+        loss = criterion(outputs, targets) + 0.2 * sparsity
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
