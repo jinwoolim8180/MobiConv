@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, groups=1, padding=1, stride=1, bias=True,
-                 n_pools=3, n_layers=16, n_pruned=0, ratio=[1, 0]):
+                 n_pools=3, n_layers=16, n_pruned=0, ratio=[1, 1]):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
@@ -51,7 +51,7 @@ class MobiConvBlock(nn.Module):
             h = F.upsample(h, scale_factor=size, mode='nearest')
             h *= table
             threshold = self.ratio[0] * torch.mean(h, dim=(-2, -1), keepdim=True)
-            threshold += self.ratio[1] * torch.amin(h, dim=(-2, -1), keepdim=True)
+            threshold += self.ratio[1] * torch.amax(h, dim=(-2, -1), keepdim=True)
             threshold /= self.ratio[0] + self.ratio[1]
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
             table += self.n_pruned * torch.ones(N, 1, H // self.stride, W // self.stride).cuda()
