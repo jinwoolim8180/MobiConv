@@ -25,7 +25,7 @@ class MobiConvBlock(nn.Module):
                               padding=padding, stride=stride, bias=bias)
                 )
             self.convs.append(
-                nn.Conv2d(in_channels, out_channels - n_pools * n_layers, kernel_size=kernel_size,
+                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
                           groups=out_channels - n_pools * n_layers,
                           padding=padding, stride=stride, bias=bias)
             )
@@ -36,7 +36,7 @@ class MobiConvBlock(nn.Module):
                               padding=padding, stride=stride, bias=bias)
                 )
             self.convs.append(
-                nn.Conv2d(in_channels, out_channels - n_pools * n_layers, kernel_size=kernel_size,
+                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
                           padding=padding, stride=stride, bias=bias)
             )
 
