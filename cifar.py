@@ -251,7 +251,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
 
         # compute output
         outputs, sparsity = model(inputs)
-        loss = criterion(outputs, targets) + 0.2 * sparsity
+        loss = criterion(outputs, targets) + 0.05 * sparsity
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
