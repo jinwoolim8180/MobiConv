@@ -40,7 +40,10 @@ class VGG(nn.Module):
                 loss += torch.mean(torch.abs_(x), dim=(0, 1, 2, 3))
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
-        return x, loss / num
+        if self.training:
+            return x, loss / num
+        else:
+            return x
 
     def _initialize_weights(self):
         for m in self.modules():
