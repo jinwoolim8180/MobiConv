@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class MobiConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, groups=1, padding=1, stride=1, bias=True,
-                 n_pools=3, n_layers=16, n_pruned=0, ratio=[1, 1]):
+                 n_pools=3, n_layers=16, n_pruned=2, ratio=[1, 0]):
         super(MobiConvBlock, self).__init__()
         # out_channels should be divisible by n_layers
         self.in_channels = in_channels
@@ -55,10 +55,8 @@ class MobiConvBlock(nn.Module):
             threshold /= self.ratio[0] + self.ratio[1]
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
             table += self.n_pruned * torch.ones(N, 1, H // self.stride, W // self.stride).cuda()
-            out.append(h)
             size //= 2
-        out = torch.cat(out, dim=1)
-        return out
+        return h
 
 
 class SmartPool2d(nn.Module):
