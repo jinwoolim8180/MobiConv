@@ -25,7 +25,7 @@ class MobiConvBlock(nn.Module):
                               padding=padding, stride=stride, bias=bias)
                 )
             self.convs.append(
-                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
+                nn.Conv2d(in_channels, out_channels - self.n_pools * self.n_layers, kernel_size=kernel_size,
                           groups=out_channels - n_pools * n_layers,
                           padding=padding, stride=stride, bias=bias)
             )
@@ -36,7 +36,7 @@ class MobiConvBlock(nn.Module):
                               padding=padding, stride=stride, bias=bias)
                 )
             self.convs.append(
-                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
+                nn.Conv2d(in_channels, out_channels - self.n_pools * self.n_layers, kernel_size=kernel_size,
                           padding=padding, stride=stride, bias=bias)
             )
 
@@ -58,7 +58,7 @@ class MobiConvBlock(nn.Module):
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)
-        return h
+        return torch.cat([h, torch.ones(N, self.n_pools * self.n_layers, H, W).to(h.device)], dim=1)
 
 
 class SmartPool2d(nn.Module):
