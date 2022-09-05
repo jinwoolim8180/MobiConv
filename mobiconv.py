@@ -58,7 +58,8 @@ class MobiConvBlock(nn.Module):
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)
-        return torch.cat([h, torch.zeros(N, self.n_pools * self.n_layers, H, W).to(h.device)], dim=1)
+        return torch.cat([h, torch.zeros(N, self.n_pools * self.n_layers,
+                                         H // self.stride, W // self.stride).to(h.device)], dim=1)
 
 
 class SmartPool2d(nn.Module):
