@@ -145,9 +145,9 @@ class ResNet(nn.Module):
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             if self.inplanes == 16:
-                layers.append(block(self.inplanes, planes, n_layers=2, n_pools=1))
+                layers.append(block(self.inplanes, planes, n_layers=2, n_pools=0))
             elif self.inplanes == 32:
-                layers.append(block(self.inplanes, planes, n_layers=2, n_pools=2))
+                layers.append(block(self.inplanes, planes, n_layers=2, n_pools=0))
             else:
                 layers.append(block(self.inplanes, planes, n_layers=0, n_pools=0))
 
