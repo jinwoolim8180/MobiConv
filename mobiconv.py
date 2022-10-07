@@ -55,6 +55,7 @@ class MobiConvBlock(nn.Module):
             threshold /= self.ratio[0] + self.ratio[1]
             table = torch.sum(torch.ge(h, threshold).float(), dim=1, keepdim=True)
             table += self.n_pruned * torch.ones(N, 1, H // self.stride, W // self.stride).cuda()
+            table = table / (table + 1e-8)
             out.append(h)
             size //= 2
         out = torch.cat(out, dim=1)
